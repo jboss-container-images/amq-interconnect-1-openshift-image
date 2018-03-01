@@ -7,6 +7,10 @@ from: "amq-interconnect-1/interconnect:latest"
 envs:
     - name: "VERSION"
       value: "latest"
+    - name: "ROUTER_ID"
+      value: "Router.A"
+    - name: "ROUTER_MODE"
+      value: "standalone"
 ports:
     - value: 56720
     - value: 8080
@@ -22,6 +26,7 @@ packages:
       install:
           - qpid-dispatch-tools
 run:
-      user: 185
-      cmd: 
+      user: root
+      cmd:
+         - "/opt/configure.py" 
          - "qdrouterd"
