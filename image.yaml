@@ -7,6 +7,8 @@ from: "amq-interconnect-1/interconnect:latest"
 envs:
     - name: "VERSION"
       value: "latest"
+    - name: "JBOSS_HOME"
+      value: "/opt/interconnect"
     - name: "ROUTER_ID"
       value: "Router.A"
     - name: "ROUTER_MODE"
@@ -26,7 +28,6 @@ packages:
       install:
           - qpid-dispatch-tools
 run:
-      user: root
+      user: 185
       cmd:
-         - "/opt/configure.py" 
-         - "qdrouterd"
+         - "/opt/interconnect/bin/openshift-launch.sh"
