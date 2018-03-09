@@ -2,6 +2,22 @@
 
 NOTE: Extends link:https://github.com/kyguy/amq-interconnect-1-image[Red Hat AMQ Interconnect image]
 
+## Create Image
+
+```
+concreate build
+```
+
+## Activating OpenShift Application Templates
+
+```
+oc new-project myproject
+oc create -n openshift -f image-streams.json
+oc create -n myproject -f templates/interconnect-basic.json
+```
+
+* Need to swap in registry hosting interconnect-openshift image in image-streams file
+
 # License
 
 See link:LICENSE[LICENSE] file.

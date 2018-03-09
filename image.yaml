@@ -2,8 +2,8 @@ schema_version: 1
 
 name: "amq-interconnect-1/interconnect-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
-version: "1.0.0"
-from: "amq-interconnect-1/interconnect:latest"
+version: "1.0"
+from: "amq-interconnect-1/interconnect:1.0"
 envs:
     - name: "VERSION"
       value: "latest"

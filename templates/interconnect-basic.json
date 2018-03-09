@@ -1,0 +1,123 @@
+{
+    "kind": "Template",
+    "apiVersion": "v1",
+    "metadata": {
+        "annotations": {
+            "description": "Application template for Red Hat Interconnect Router.",
+            "iconClass": "icon-amq",
+            "openshift.io/provider-display-name": "Red Hat, Inc.",
+            "tags": "messaging,amq,jboss,hidden",
+            "version": "1.4.9",
+            "openshift.io/display-name": "Red Hat Interconnect 1.x"
+        },
+        "name": "interconnect-basic"
+    },
+    "labels": {
+        "template": "interconnect-basic",
+        "xpaas": "1.4.9"
+    },
+    "message": "A new messaging service has been created in your project.",
+    "parameters": [
+        {
+            "displayName": "Application Name",
+            "description": "The name for the application.",
+            "name": "APPLICATION_NAME",
+            "value": "Router.A",
+            "required": true
+        },
+        {
+            "displayName": "Router ID",
+            "description": "Router's unique identity",
+            "name": "ROUTER_ID",
+            "value": "Router.A",
+            "required": false
+        },
+        {
+            "displayName": "Router Mode",
+            "description": "",
+            "name": "ROUTER_MODE",
+            "value": "standalone",
+            "required": false
+        },
+        {
+            "displayName": "ImageStream Namespace",
+            "description": "Namespace in which the ImageStreams for Red Hat Middleware images are installed. These ImageStreams are normally installed in the openshift namespace. You should only need to modify this if you've installed the ImageStreams in a different namespace/project.",
+            "name": "IMAGE_STREAM_NAMESPACE",
+            "value": "openshift",
+            "required": true
+        }
+    ],
+    "objects": [
+        {
+            "kind": "DeploymentConfig",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "${APPLICATION_NAME}-amq",
+                "labels": {
+                    "application": "${APPLICATION_NAME}"
+                }
+            },
+            "spec": {
+                "strategy": {
+                    "type": "Rolling",
+                    "rollingParams": {
+                        "maxSurge": 0
+                    }
+                },
+                "triggers": [
+                    {
+                        "type": "ImageChange",
+                        "imageChangeParams": {
+                            "automatic": true,
+                            "containerNames": [
+                                "${APPLICATION_NAME}-amq"
+                            ],
+                            "from": {
+                                "kind": "ImageStreamTag",
+                                "namespace": "${IMAGE_STREAM_NAMESPACE}",
+                                "name": "interconnect-1:1.0"
+                            }
+                        }
+                    },
+                    {
+                        "type": "ConfigChange"
+                    }
+                ],
+                "replicas": 1,
+                "selector": {
+                    "deploymentConfig": "${APPLICATION_NAME}-amq"
+                },
+                "template": {
+                    "metadata": {
+                        "name": "${APPLICATION_NAME}-amq",
+                        "labels": {
+                            "deploymentConfig": "${APPLICATION_NAME}-amq",
+                            "application": "${APPLICATION_NAME}"
+                        }
+                    },
+                    "spec": {
+                        "terminationGracePeriodSeconds": 60,
+                        "containers": [
+                            {
+                                "name": "${APPLICATION_NAME}-amq",
+                                "ports": [
+                                ],
+                                "env": [
+                                    {
+                                        "name": "ROUTER_ID",
+                                        "value": "${ROUTER_ID}"
+                                    },
+                                    {
+                                        "name": "ROUTER_MODE",
+                                        "value": "${ROUTER_MODE}"
+                                    }
+                                    ]
+                            }
+                        ]
+                    }
+                }
+            }
+        }
+    ]
+}
+

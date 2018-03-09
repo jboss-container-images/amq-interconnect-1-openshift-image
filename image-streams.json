@@ -1,0 +1,50 @@
+{
+    "kind": "List",
+    "apiVersion": "v1",
+    "metadata": {
+        "name": "image-streams",
+        "annotations": {
+            "description": "ImageStream definition for Red Hat Interconnect 1.x",
+            "openshift.io/provider-display-name": "Red Hat, Inc."
+        }
+    },
+    "items": [
+        {
+            "kind": "ImageStream",
+            "apiVersion": "v1",
+            "metadata": {
+                "name": "interconnect-1",
+                "annotations": {
+                    "openshift.io/display-name": "Red Hat Interconnect 1.x",
+                    "openshift.io/provider-display-name": "Red Hat, Inc.",
+                    "version": "1.4.9"
+                }
+            },
+            "labels": {
+                "xpaas": "1.4.9"
+            },
+            "spec": {
+                "tags": [
+                    {
+                        "name": "1.0",
+                        "annotations": {
+                            "description": "Red Hat Interconnect 1.x router image.",
+                            "iconClass": "icon-amq",
+                            "tags": "messaging,amq,jboss,hidden",
+                            "supports": "interconnect:1.x,messaging",
+                            "version": "1.0",
+                            "openshift.io/display-name": "Red Hat Interconnect 1.x"
+                        },
+                        "from": {
+                            "kind": "DockerImage",
+                            "name": "registry.access.redhat.com/amq-interconnect-1/interconnect-openshift:1.0"
+                        },
+			"importPolicy": {
+			    "insecure": true
+                        }
+		    }
+                ]
+            }
+        }
+    ]
+}
