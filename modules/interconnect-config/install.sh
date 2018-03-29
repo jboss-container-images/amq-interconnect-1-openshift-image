@@ -5,7 +5,7 @@ SCRIPT_DIR=$(dirname $0)
 ADDED_DIR=${SCRIPT_DIR}/added
 
 # Create location and set permissions for configuration files
-mkdir -p ${AMQ_HOME}/etc
+mkdir -p ${AMQ_HOME}/etc/configmap
 chown -R jboss:root ${AMQ_HOME}/etc
 chmod -R ug+rwx ${AMQ_HOME}/etc
 

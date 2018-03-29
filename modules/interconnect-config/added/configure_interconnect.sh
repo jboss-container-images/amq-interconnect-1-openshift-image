@@ -2,6 +2,8 @@
 set -e
 
 INSTANCE_DIR=$1
+CONFIGMAP=${AMQ_HOME}/etc/configmap
+
 DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 
 declare -a CONFIG_FILES=("QDROUTERD_CONF")
@@ -29,12 +31,18 @@ do
    
     echo "Custom Configuration file '$config_file' is enabled"
     
-    # Overwrite default configuration file
-    echo "$file_text" > $INSTANCE_DIR/etc/$fname
-
+    if mount | grep $CONFIGMAP > /dev/null; then
+      echo "ConfigMap volume mounted, copying over configuration files ..."
+      cp  $CONFIGMAP/$fname $INSTANCE_DIR/etc/$fname
+    else
+      echo "ConfigMap volume not mounted.."
+      # Overwrite default configuration file
+      echo "$file_text" > $INSTANCE_DIR/etc/$fname
+    fi
+ 
   fi
 
-    # Swap env vars into configuration file
-    swapVars $INSTANCE_DIR/etc/$fname
+  # Swap env vars into configuration file
+  swapVars $INSTANCE_DIR/etc/$fname
 
 done
