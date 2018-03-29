@@ -3,7 +3,7 @@ schema_version: 1
 name: "amq-interconnect-1/amq-interconnect-1-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
 version: "1.1"
-from: "amq-interconnect-1/amq-interconnect-1:latest"
+from: "jboss/base-rhel7:latest"
 labels:    
     - name: "com.redhat.component"
       value: "amq-7-interconnect-11-openshift-container"

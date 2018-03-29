@@ -1,6 +1,13 @@
 # Red Hat AMQ Interconnect OpenShift image
 
-NOTE: Extends link:https://github.com/kyguy/amq-interconnect-1-image[Red Hat AMQ Interconnect image]
+NOTE: Extends link:https://access.redhat.com/containers/#/registry.access.redhat.com/rhel7[RHEL base image]
+
+Provides AMQ Interconnect tools and OpenShift Integration
+
+. qdmanage
+. qdrouterd
+. qdstat 
+
 
 ## Run Interconnect in OpenShift
 
