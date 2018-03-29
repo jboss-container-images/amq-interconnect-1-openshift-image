@@ -1,6 +1,0 @@
-schema_version: 1
-
-name: interconnect
-version: 1.0
-execute:
-  - script: configure.sh

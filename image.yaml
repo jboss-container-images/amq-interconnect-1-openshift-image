@@ -1,27 +1,30 @@
 schema_version: 1
 
-name: "amq-interconnect-1/interconnect-openshift"
+name: "amq-interconnect-1/amq-interconnect-1-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
-version: "1.0"
-from: "amq-interconnect-1/interconnect:1.0"
+version: "1.1"
+from: "amq-interconnect-1/amq-interconnect-1:latest"
+labels:    
+    - name: "com.redhat.component"
+      value: "amq-7-interconnect-11-openshift-container"
+    - name: "io.k8s.description"
+      value: "A lightweight AMQP message router for building scalable, available, and performant messaging networks."
+    - name: "io.k8s.display-name"
+      value: "AMQ Interconnect 1.1"
+    - name: "io.openshift.tags"
+      value: "messaging,amq,jboss,xpaas"
 envs:
-    - name: "VERSION"
-      value: "latest"
-    - name: "JBOSS_HOME"
+    - name: "AMQ_HOME"
       value: "/opt/interconnect"
-    - name: "ROUTER_ID"
-      value: "Router.A"
-    - name: "ROUTER_MODE"
-      value: "standalone"
 ports:
-    - value: 56720
+    - value: 5672
     - value: 8080
 modules:
       repositories:
-          - name: interconnect
-            path: modules
+          - path: modules
       install:
-          - name: interconnect
+          - name: interconnect.config
+          - name: interconnect.launch
 packages:
       repositories:
           - jboss-rhom
@@ -30,4 +33,8 @@ packages:
 run:
       user: 185
       cmd:
-         - "/opt/interconnect/bin/openshift-launch.sh"
+         - "/opt/interconnect/bin/launch.sh"
+osbs:
+      repository:
+            name: containers/amq-7-interconnect
+            branch: rh-amq-interconnect-1.1-openshift-rhel-7

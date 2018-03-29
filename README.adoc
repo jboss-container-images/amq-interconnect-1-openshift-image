@@ -2,21 +2,24 @@
 
 NOTE: Extends link:https://github.com/kyguy/amq-interconnect-1-image[Red Hat AMQ Interconnect image]
 
-## Create Image
+## Run Interconnect in OpenShift
+
+Install link:http://concreate.readthedocs.io/en/develop/installation.html[Concreate] container creation tool, then build image:
 
 ```
 concreate build
 ```
 
-## Activating OpenShift Application Templates
+After logging into OpenShift instance ( oc login ), load the image into its registry
+```
+./load_registry
+```
 
+Then instantiate the template 
 ```
 oc new-project myproject
-oc create -n openshift -f image-streams.json
-oc create -n myproject -f templates/interconnect-basic.json
+oc process -n myproject -f templates/amq-interconnect-1-basic.yaml -p APPLICATION_NAME=router-app | oc create -n myproject -f -
 ```
-
-* Need to swap in registry hosting interconnect-openshift image in image-streams file
 
 # License
 
