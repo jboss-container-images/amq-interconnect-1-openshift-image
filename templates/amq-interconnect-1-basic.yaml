@@ -155,5 +155,18 @@ objects:
           - name: QDROUTERD_CONF
             value: "${QDROUTERD_CONF}"
             image: amq-interconnect-1-openshift:latest
+          volumeMounts:
+          - name: config-volume
+            mountPath: /opt/interconnect/etc/configmap/
+          terminationGracePeriodSeconds: 60
+        volumes:
+        - name: config-volume
+          configMap:
+            name: configmap
         imagePullPolicy: Always
-
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: configmap
+  data:
+    qdrouterd.conf: ${QDROUTERD_CONF}
