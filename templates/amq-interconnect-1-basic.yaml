@@ -115,7 +115,7 @@ objects:
         from:
           kind: ImageStreamTag
           namespace: "${IMAGE_STREAM_NAMESPACE}"
-          name: amq-interconnect-1-openshift:latest
+          name: interconnect11:latest
     - type: ConfigChange
     replicas: 1
     selector:
@@ -140,7 +140,7 @@ objects:
           env:
           - name: QDROUTERD_CONF
             value: "${QDROUTERD_CONF}"
-            image: amq-interconnect-1-openshift:latest
+            image: interconnect11:latest
           volumeMounts:
           - name: config-volume
             mountPath: /opt/interconnect/etc/configmap/
