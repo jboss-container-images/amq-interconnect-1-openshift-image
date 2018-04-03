@@ -1,12 +1,12 @@
 schema_version: 1
 
-name: "amq-interconnect-1/amq-interconnect-1-openshift"
+name: "amq/interconnect11"
 description: "Red Hat AMQ Interconnect OpenShift container image"
 version: "1.1"
 from: "jboss/base-rhel7:latest"
 labels:    
     - name: "com.redhat.component"
-      value: "amq-7-interconnect-11-openshift-container"
+      value: "amq-interconnect-1-interconnect11-openshift-container"
     - name: "io.k8s.description"
       value: "A lightweight AMQP message router for building scalable, available, and performant messaging networks."
     - name: "io.k8s.display-name"

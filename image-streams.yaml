@@ -18,14 +18,14 @@ items:
     xpaas: 1.4.10
   spec:
     tags:
-    - name: '1.1'
+    - name: '1.0'
       annotations:
         description: Red Hat Interconnect 1.1 router image.
         iconClass: icon-amq
         tags: messaging,amq,jboss
         supports: interconnect:1.1,messaging
-        version: '1.1'
+        version: '1.0'
         openshift.io/display-name: Red Hat Interconnect 1.1
       from:
         kind: DockerImage
-        name: amq-interconnect-1/amq-interconnect-1-openshift:1.1
+        name: amq/interconnect11:1.0
