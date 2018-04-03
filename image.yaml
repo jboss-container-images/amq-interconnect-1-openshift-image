@@ -29,6 +29,7 @@ packages:
       repositories:
           - jboss-rhom
       install:
+          - qpid-dispatch-router
           - qpid-dispatch-tools
 run:
       user: 185

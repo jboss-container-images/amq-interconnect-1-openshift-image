@@ -19,16 +19,6 @@ parameters:
   name: APPLICATION_NAME
   value: router
   required: true
-- displayName: Router ID
-  description: Router's unique identity
-  name: ROUTER_ID
-  value: Router.A
-  required: true
-- displayName: Router Mode
-  description: Allowed values are `standalone` and `interior`
-  name: ROUTER_MODE
-  value: standalone
-  required: true
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
@@ -41,8 +31,8 @@ parameters:
   name: QDROUTERD_CONF
   value: |-
     router {
-        mode: ${ROUTER_MODE}
-        id: ${ROUTER_ID}
+        mode: interior
+        id: ${HOSTNAME}
     }
 
     listener {
@@ -148,10 +138,6 @@ objects:
             containerPort: 8080
             protocol: TCP
           env:
-          - name: ROUTER_ID
-            value: "${ROUTER_ID}"
-          - name: ROUTER_MODE
-            value: "${ROUTER_MODE}"
           - name: QDROUTERD_CONF
             value: "${QDROUTERD_CONF}"
             image: amq-interconnect-1-openshift:latest

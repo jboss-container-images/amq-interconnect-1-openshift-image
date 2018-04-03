@@ -9,8 +9,7 @@ DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 declare -a CONFIG_FILES=("QDROUTERD_CONF")
 
 function swapVars() { 
-  sed -i "s/\${ROUTER_ID}/$ROUTER_ID/g" $1
-  sed -i "s/\${ROUTER_MODE}/$ROUTER_MODE/g" $1
+  sed -i "s/\${HOSTNAME}/$HOSTNAME/g" $1
 }
 
 for config_file in ${CONFIG_FILES[@]};
