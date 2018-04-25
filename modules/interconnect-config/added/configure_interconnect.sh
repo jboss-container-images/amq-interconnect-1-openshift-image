@@ -2,7 +2,9 @@
 set -e
 
 INSTANCE_DIR=$1
-CONFIGMAP=${AMQ_HOME}/etc/configmap
+CONFIGBIN=${INSTANCE_DIR}/bin
+CONFIGDIR=${INSTANCE_DIR}/etc
+CONFIGMAP=${INSTANCE_DIR}/etc/configmap
 
 DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
 
@@ -32,16 +34,20 @@ do
     
     if mount | grep $CONFIGMAP > /dev/null; then
       echo "ConfigMap volume mounted, copying over configuration files ..."
-      cp  $CONFIGMAP/$fname $INSTANCE_DIR/etc/$fname
+      cp  $CONFIGMAP/$fname $CONFIGDIR/$fname
     else
       echo "ConfigMap volume not mounted.."
       # Overwrite default configuration file
-      echo "$file_text" > $INSTANCE_DIR/etc/$fname
+      echo "$file_text" > $CONFIGDIR/$fname
     fi
  
   fi
 
   # Swap env vars into configuration file
-  swapVars $INSTANCE_DIR/etc/$fname
+  swapVars $CONFIGDIR/$fname
+
+  if [ "$fname" == "qdrouterd.conf" ]; then
+    python ${CONFIGBIN}/add_connectors.py $CONFIGDIR/$fname
+  fi
 
 done
