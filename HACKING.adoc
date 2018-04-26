@@ -22,12 +22,44 @@ concreate build
 ```
 
 ## Deploy
-Load image into OpenShift registry and instantiate the template 
+Load image into OpenShift registry
 ```
 ./load_registry.sh
+```
 
+then instantiate a template: 
+
+#### Basic Template
+
+Standard Interconnect application
+
+```
 oc process -f templates/amq-interconnect-1-basic.yaml \
  -p APPLICATION_NAMESPACE=$NAMESPACE  \
  -p IMAGE_STREAM_NAMESPACE=$NAMESPACE \
  | oc create -f -
+```
+
+#### TLS Template
+
+Standard Interconnect application with Transport Layer Security ( TLS ) authentication between routers. 
+
+```
+oc create -n $NAMESPACE -f secrets
+
+oc process -f templates/amq-interconnect-1-tls.yaml \
+ -p APPLICATION_NAMESPACE=$NAMESPACE  \
+ -p IMAGE_STREAM_NAMESPACE=$NAMESPACE \
+ | oc create -f -
+```
+
+WARNING: A default secret containing the TLS cert is provided for experimentation
+
+To generate a new secret:
+
+```
+CERT=interconnect-app-secret
+mkdir -p $CERT
+openssl req -new -x509 -batch -nodes -days 11000 -out $CERT/tls.crt -keyout $CERT/tls.key
+oc create secret tls $CERT --cert=$CERT/tls.crt --key=$CERT/tls.key
 ```
