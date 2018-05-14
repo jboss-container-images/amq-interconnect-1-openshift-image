@@ -1,0 +1,33 @@
+# Hacking Interconnect OpenShift image
+
+## Configure OpenShift
+Start local link:https://github.com/openshift/origin/blob/master/docs/cluster_up_down.md[OpenShift instance]
+```
+oc cluster up
+```
+```
+oc login -u system:admin
+USERNAME=dev
+NAMESPACE=interconnect
+oc policy add-role-to-user view $USERNAME -n default
+oc policy add-role-to-user system:image-pusher $USERNAME
+oc login -u $USERNAME -p " "
+oc new-project $NAMESPACE
+```
+
+## Build Image
+Install link:http://concreate.readthedocs.io/en/develop/installation.html[Concreate] container creation tool, then build image:
+```
+concreate build
+```
+
+## Deploy
+Load image into OpenShift registry and instantiate the template 
+```
+./load_registry.sh
+
+oc process -f templates/amq-interconnect-1-basic.yaml \
+ -p APPLICATION_NAMESPACE=$NAMESPACE  \
+ -p IMAGE_STREAM_NAMESPACE=$NAMESPACE \
+ | oc create -f -
+```

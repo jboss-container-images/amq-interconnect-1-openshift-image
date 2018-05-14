@@ -2,8 +2,8 @@ schema_version: 1
 
 name: "amq-interconnect-1/amq-interconnect-11-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
-version: "1.1"
-from: "jboss/base-rhel7:latest"
+version: "1.0"
+from: "jboss/base-rhel7:1.1"
 labels:    
     - name: "com.redhat.component"
       value: "amq-7-interconnect-11-openshift-container"
@@ -18,6 +18,7 @@ envs:
       value: "/opt/interconnect"
 ports:
     - value: 5672
+    - value: 55672
     - value: 8080
 modules:
       repositories:

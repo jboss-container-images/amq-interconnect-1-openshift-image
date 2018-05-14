@@ -1,6 +1,6 @@
 # Red Hat AMQ Interconnect OpenShift image
 
-NOTE: Extends link:https://access.redhat.com/containers/#/registry.access.redhat.com/rhel7[RHEL base image]
+NOTE: Extends link:https://github.com/jboss-container-images/jboss-base-image[JBoss base image]
 
 Provides AMQ Interconnect tools and OpenShift Integration
 
@@ -9,26 +9,8 @@ Provides AMQ Interconnect tools and OpenShift Integration
 . qdstat 
 
 
-## Run Interconnect in OpenShift
-
-Install link:http://concreate.readthedocs.io/en/develop/installation.html[Concreate] container creation tool, then build image:
-
-```
-concreate build
-```
-
-After logging into OpenShift instance ( oc login ), load the image into its registry
-```
-./load_registry
-```
-
-Then instantiate the template 
-```
-oc new-project myproject
-oc process -n myproject -f templates/amq-interconnect-1-basic.yaml -p APPLICATION_NAME=router-app | oc create -n myproject -f -
-```
+See HACKING.adoc for details on developing Interconnect Images
 
 # License
 
 See link:LICENSE[LICENSE] file.
-
