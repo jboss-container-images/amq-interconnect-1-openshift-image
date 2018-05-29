@@ -1,53 +1,54 @@
-#!/bin/sh
-set -e
+#!/bin/bash
 
-INSTANCE_DIR=$1
-CONFIGBIN=${INSTANCE_DIR}/bin
-CONFIGDIR=${INSTANCE_DIR}/etc
-CONFIGMAP=${INSTANCE_DIR}/etc/configmap
+HOME_DIR=$1
+OUTFILE=$2
 
-DISABLER_TAG="<!-- Remove this tag to enable custom configuration -->"
-
-declare -a CONFIG_FILES=("QDROUTERD_CONF")
-
-function swapVars() { 
+function swapVars() {
   sed -i "s/\${HOSTNAME}/$HOSTNAME/g" $1
 }
 
-for config_file in ${CONFIG_FILES[@]};
-do
-  
-  file_text="${!config_file}"
-  file_text=$(echo "$file_text" | sed  "/^$/d") # Remove empty lines
+if [[ $QDROUTERD_CONF =~ .*\{.*\}.* ]]; then
+    # env var contains inline config
+    echo "$QDROUTERD_CONF" > $OUTFILE
+elif [[ -n $QDROUTERD_CONF ]]; then
+    # treat as path(s)
+    IFS=':,' read -r -a array <<< "$QDROUTERD_CONF"
+    > $OUTFILE
+    for i in "${array[@]}"; do
+        if [[ -d $i ]]; then
+            # if directory, concatenate to output all .conf files
+            # within it
+            for f in $i/*.conf; do
+                cat "$f" >> $OUTFILE
+            done
+        elif [[ -f $i ]]; then
+            # if file concatenate that to the output
+            cat "$i" >> $OUTFILE
+        else
+            echo "No such file or directory: $i"
+        fi
+    done
+fi
 
-  # Format env var into filename 
-  fname=$(echo "$config_file" | tr '[:upper:]' '[:lower:]' | sed -e 's/_/./g')
+swapVars $OUTFILE
 
-  #If file_text has disabler tag or is an empty/whitspace string 
-  if echo "$file_text" | grep -q "$DISABLER_TAG" || [[ -z "${file_text// }" ]]; then  
-     
-    echo "Custom Configuration file '$config_file' is disabled"
-
-  else
-   
-    echo "Custom Configuration file '$config_file' is enabled"
-    
-    if mount | grep $CONFIGMAP > /dev/null; then
-      echo "ConfigMap volume mounted, copying over configuration files ..."
-      cp  $CONFIGMAP/$fname $CONFIGDIR/$fname
-    else
-      echo "ConfigMap volume not mounted.."
-      # Overwrite default configuration file
-      echo "$file_text" > $CONFIGDIR/$fname
-    fi
- 
-  fi
-
-  # Swap env vars into configuration file
-  swapVars $CONFIGDIR/$fname
-
-  if [ "$fname" == "qdrouterd.conf" ]; then
-    python ${CONFIGBIN}/add_connectors.py $CONFIGDIR/$fname
-  fi
-
-done
+if [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "QUERY" ]; then
+    python $HOME_DIR/bin/add_connectors.py $OUTFILE
+elif [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "INFER" ]; then
+    INDEX=$(echo "$HOSTNAME" | rev | cut -f1 -d-)
+    PREFIX=$(echo "$HOSTNAME" | rev | cut -f2- -d- | rev)
+    COUNT=0
+    while [ $COUNT -lt $INDEX ]; do
+        cat <<EOF >> $OUTFILE
+connector {
+    name: ${PREFIX}-${COUNT}
+    host: ${PREFIX}-${COUNT}.${APPLICATION_NAME}-headless.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local
+    port: 55672
+    role: inter-router
+    sslProfile: inter_router_tls
+    verifyHostname: false
+}
+EOF
+        let COUNT=COUNT+1
+    done
+fi
