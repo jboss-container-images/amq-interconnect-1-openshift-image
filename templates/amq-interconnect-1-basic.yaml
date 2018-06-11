@@ -19,11 +19,6 @@ parameters:
   name: APPLICATION_NAME
   value: router
   required: true
-- displayName: Application Namespace
-  description: The namespace of the application.
-  name: APPLICATION_NAMESPACE
-  value: router
-  required: true
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
@@ -185,42 +180,18 @@ objects:
               fieldRef:
                 fieldPath: status.podIP
             image: amq-interconnect-11-openshift:latest
-          volumeMounts:
-          - name: config-volume
-            mountPath: /opt/interconnect/etc/configmap/
           terminationGracePeriodSeconds: 60
-        volumes:
-        - name: config-volume
-          configMap:
-            name: configmap
         imagePullPolicy: Always
-- kind: ConfigMap
-  apiVersion: v1
-  metadata:
-    name: configmap
-  data:
-    qdrouterd.conf: ${QDROUTERD_CONF}
 - kind: ServiceAccount
   apiVersion: v1
   metadata:
     name: ${APPLICATION_NAME}
-- kind: Role
-  apiVersion: v1
-  metadata:
-    name: ${APPLICATION_NAME}
-  rules:
-  - apiGroups: [""]
-    resources: ["pods"]
-    verbs: ["list"]
 - kind: RoleBinding
   apiVersion: v1
   metadata:
-    name: ${APPLICATION_NAME}
+    name: ${APPLICATION_NAME}-view
   subjects:
   - kind: ServiceAccount
     name: ${APPLICATION_NAME}
   roleRef:
-    kind: Role
-    name: ${APPLICATION_NAME}
-    namespace: ${APPLICATION_NAMESPACE}
-    apiGroup: rbac.authorization.k8s.io
+    name: "view"
