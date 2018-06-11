@@ -35,6 +35,7 @@ swapVars $OUTFILE
 if [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "QUERY" ]; then
     python $HOME_DIR/bin/add_connectors.py $OUTFILE
 elif [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "INFER" ]; then
+    SERVICE_NAME=${QDROUTERD_AUTO_MESH_SERVICE_NAME:-${APPLICATION_NAME}-headless}
     INDEX=$(echo "$HOSTNAME" | rev | cut -f1 -d-)
     PREFIX=$(echo "$HOSTNAME" | rev | cut -f2- -d- | rev)
     COUNT=0
@@ -42,7 +43,7 @@ elif [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "INFER" ]; then
         cat <<EOF >> $OUTFILE
 connector {
     name: ${PREFIX}-${COUNT}
-    host: ${PREFIX}-${COUNT}.${APPLICATION_NAME}-headless.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local
+    host: ${PREFIX}-${COUNT}.${SERVICE_NAME}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local
     port: 55672
     role: inter-router
     sslProfile: inter_router_tls
