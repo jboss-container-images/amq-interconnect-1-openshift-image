@@ -50,6 +50,29 @@ parameters:
       saslMechanisms: ANONYMOUS
     }
 
+    sslProfile {
+       name: service_tls
+       certFile: /etc/qpid-dispatch-certs/tls.crt
+       privateKeyFile: /etc/qpid-dispatch-certs/tls.key
+    }
+
+    listener {
+        host: 0.0.0.0
+        port: amqps
+        authenticatePeer: no
+        saslMechanisms: ANONYMOUS
+        sslProfile: service_tls
+    }
+
+    listener {
+        host: 0.0.0.0
+        port: 8080
+        authenticatePeer: no
+        saslMechanisms: ANONYMOUS
+        sslProfile: service_tls
+        http: true
+    }
+
     address {
         prefix: closest
         distribution: closest
@@ -79,43 +102,26 @@ objects:
 - kind: Service
   apiVersion: v1
   metadata:
-    name: ${APPLICATION_NAME}-amqp
+    name: ${APPLICATION_NAME}
     labels:
       application: ${APPLICATION_NAME}
     annotations:
       description: The router's AMQP port.
+      service.alpha.openshift.io/serving-cert-secret-name: ${APPLICATION_NAME}-cert
   spec:
     ports:
     - port: 5672
+      name: amqp
       targetPort: 5672
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- kind: Service
-  apiVersion: v1
-  metadata:
-    name: ${APPLICATION_NAME}-inter
-    labels:
-      application: ${APPLICATION_NAME}
-    annotations:
-      description: The router's inter-router port.
-  spec:
-    ports:
-    - port: 55672
-      targetPort: 55672
-    selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
-- kind: Service
-  apiVersion: v1
-  metadata:
-    name: ${APPLICATION_NAME}-http
-    labels:
-      application: ${APPLICATION_NAME}
-    annotations:
-      description: The router's http port.
-  spec:
-    ports:
+    - port: 5671
+      name: amqps
+      targetPort: 5671
     - port: 8080
-      targetPort: 8080
+      name: http
+      targetPort: 5671
+    - port: 55672
+      name: inter-router
+      targetPort: 55672
     selector:
       deploymentConfig: ${APPLICATION_NAME}-amq
 - kind: DeploymentConfig
@@ -154,9 +160,12 @@ objects:
         terminationGracePeriodSeconds: 60
         containers:
         - name: "${APPLICATION_NAME}-amq"
-          ports: 
+          ports:
           - name: amqp
             containerPort: 5672
+            protocol: TCP
+          - name: amqps
+            containerPort: 5671
             protocol: TCP
           - name: http
             containerPort: 8080
@@ -180,7 +189,15 @@ objects:
               fieldRef:
                 fieldPath: status.podIP
             image: amq-interconnect-11-openshift:latest
+          volumeMounts:
+          - name: certs
+            readOnly: true
+            mountPath: /etc/qpid-dispatch-certs/
           terminationGracePeriodSeconds: 60
+        volumes:
+        - name: certs
+          secret:
+            secretName: ${APPLICATION_NAME}-cert
         imagePullPolicy: Always
 - kind: ServiceAccount
   apiVersion: v1
