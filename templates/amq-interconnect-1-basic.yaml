@@ -17,7 +17,7 @@ parameters:
 - displayName: Application Name
   description: The name for the application.
   name: APPLICATION_NAME
-  value: router
+  value: amq-interconnect
   required: true
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
@@ -123,11 +123,11 @@ objects:
       name: inter-router
       targetPort: 55672
     selector:
-      deploymentConfig: ${APPLICATION_NAME}-amq
+      deploymentConfig: ${APPLICATION_NAME}
 - kind: DeploymentConfig
   apiVersion: v1
   metadata:
-    name: "${APPLICATION_NAME}-amq"
+    name: "${APPLICATION_NAME}"
     labels:
       application: "${APPLICATION_NAME}"
   spec:
@@ -140,7 +140,7 @@ objects:
       imageChangeParams:
         automatic: true
         containerNames:
-        - "${APPLICATION_NAME}-amq"
+        - "${APPLICATION_NAME}"
         from:
           kind: ImageStreamTag
           namespace: "${IMAGE_STREAM_NAMESPACE}"
@@ -148,18 +148,18 @@ objects:
     - type: ConfigChange
     replicas: 1
     selector:
-      deploymentConfig: "${APPLICATION_NAME}-amq"
+      deploymentConfig: "${APPLICATION_NAME}"
     template:
       metadata:
-        name: "${APPLICATION_NAME}-amq"
+        name: "${APPLICATION_NAME}"
         labels:
-          deploymentConfig: "${APPLICATION_NAME}-amq"
+          deploymentConfig: "${APPLICATION_NAME}"
           application: "${APPLICATION_NAME}"
       spec:
         serviceAccountName: ${APPLICATION_NAME}
         terminationGracePeriodSeconds: 60
         containers:
-        - name: "${APPLICATION_NAME}-amq"
+        - name: "${APPLICATION_NAME}"
           ports:
           - name: amqp
             containerPort: 5672
