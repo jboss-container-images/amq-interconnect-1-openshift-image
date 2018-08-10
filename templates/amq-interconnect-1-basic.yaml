@@ -66,11 +66,12 @@ parameters:
 
     listener {
         host: 0.0.0.0
-        port: 8080
+        port: 8672
         authenticatePeer: no
         saslMechanisms: ANONYMOUS
         sslProfile: service_tls
         http: true
+        httpRootDir: /usr/share/qpid-dispatch/console
     }
 
     address {
@@ -116,9 +117,9 @@ objects:
     - port: 5671
       name: amqps
       targetPort: 5671
-    - port: 8080
+    - port: 8672
       name: http
-      targetPort: 5671
+      targetPort: 8672
     - port: 55672
       name: inter-router
       targetPort: 55672
@@ -203,10 +204,14 @@ objects:
   apiVersion: v1
   metadata:
     name: ${APPLICATION_NAME}
+    labels:
+      application: "${APPLICATION_NAME}"
 - kind: RoleBinding
   apiVersion: v1
   metadata:
     name: ${APPLICATION_NAME}-view
+    labels:
+      application: "${APPLICATION_NAME}"
   subjects:
   - kind: ServiceAccount
     name: ${APPLICATION_NAME}
