@@ -38,5 +38,5 @@ run:
          - "/opt/interconnect/bin/launch.sh"
 osbs:
       repository:
-            name: containers/amq-7-interconnect
-            branch: rh-amq-interconnect-1.1-openshift-rhel-7
+            name: containers/amq-interconnect
+            branch: amq-interconnect-1.2-openshift-dev-rhel-7
