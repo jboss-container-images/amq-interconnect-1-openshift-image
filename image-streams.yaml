@@ -20,12 +20,12 @@ items:
     tags:
     - name: '1.0'
       annotations:
-        description: Red Hat Interconnect 1.1 router image.
+        description: Red Hat Interconnect 1.2 router image.
         iconClass: icon-amq
         tags: messaging,amq,jboss
-        supports: interconnect:1.1,messaging
+        supports: interconnect:1.2,messaging
         version: '1.0'
-        openshift.io/display-name: Red Hat Interconnect 1.1
+        openshift.io/display-name: Red Hat Interconnect 1.2
       from:
         kind: DockerImage
-        name: amq-interconnect-1/amq-interconnect-11-openshift:1.1
+        name: amq-interconnect-1/amq-interconnect-12-openshift:latest

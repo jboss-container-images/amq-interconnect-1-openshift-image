@@ -32,8 +32,12 @@ fi
 
 swapVars $OUTFILE
 
+if [ -n "$QDROUTERD_AUTO_MESH_SSL_PROFILE" ]; then
+    SSL_PROFILE_CONF="    sslProfile: ${QDROUTERD_AUTO_MESH_SSL_PROFILE}";
+fi
+
 if [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "QUERY" ]; then
-    python $HOME_DIR/bin/add_connectors.py $OUTFILE
+    python $HOME_DIR/bin/add_connectors.py $OUTFILE "$SSL_PROFILE_CONF"
 elif [ "$QDROUTERD_AUTO_MESH_DISCOVERY" = "INFER" ]; then
     SERVICE_NAME=${QDROUTERD_AUTO_MESH_SERVICE_NAME:-${APPLICATION_NAME}-headless}
     INDEX=$(echo "$HOSTNAME" | rev | cut -f1 -d-)
@@ -46,7 +50,7 @@ connector {
     host: ${PREFIX}-${COUNT}.${SERVICE_NAME}.$(cat /var/run/secrets/kubernetes.io/serviceaccount/namespace).svc.cluster.local
     port: 55672
     role: inter-router
-    sslProfile: inter_router_tls
+${SSL_PROFILE_CONF}
     verifyHostname: false
 }
 EOF
