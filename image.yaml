@@ -1,25 +1,30 @@
 schema_version: 1
 
-name: "amq-interconnect-1/amq-interconnect-11-openshift"
+name: "amq-interconnect-1/amq-interconnect-12-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
 version: "1.0"
 from: "jboss/base-rhel7:1.1"
-labels:    
+labels:
     - name: "com.redhat.component"
-      value: "amq-7-interconnect-11-openshift-container"
+      value: "amq-interconnect-12-openshift-container"
     - name: "io.k8s.description"
       value: "A lightweight AMQP message router for building scalable, available, and performant messaging networks."
     - name: "io.k8s.display-name"
       value: "AMQ Interconnect 1.1"
     - name: "io.openshift.tags"
-      value: "messaging,amq,jboss,xpaas"
+      value: "messaging,amq"
+    - name: "maintainer"
+      value: "gsim@redhat.com"
+    - name: "io.openshift.expose-services"
+      value: "5672:amqp,5671:amqps,8672:http"
 envs:
     - name: "AMQ_HOME"
       value: "/opt/interconnect"
 ports:
     - value: 5672
+    - value: 5671
     - value: 55672
-    - value: 8080
+    - value: 8672
 modules:
       repositories:
           - path: modules
@@ -28,7 +33,9 @@ modules:
           - name: interconnect.launch
 packages:
       repositories:
-          - jboss-rhom
+          - name: jboss-rhom
+            url:
+                repository: http://download.eng.bos.redhat.com/rcm-guest/puddles/RHOM/1.0/latest/puddle.repo
       install:
           - qpid-dispatch-router
           - qpid-dispatch-tools

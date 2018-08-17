@@ -10,6 +10,7 @@ import sys
 
 TOKEN_FILE  = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 CONFIG_FILE = sys.argv[1]
+SSL_CONFIG  = sys.argv[2]
 
 IP=0 # Field to reference pod IP address
 TS=1 # Field to reference pod timestamp
@@ -65,6 +66,7 @@ def update_config(ip_list):
                  "  host: " + ip + "\n"
                  "  port: 55672\n"
                  "  role: inter-router\n"
+                 " " + SSL_CONFIG + "\n"
                  "  verifyHostName: no\n"
                  "}\n\n"
                 )

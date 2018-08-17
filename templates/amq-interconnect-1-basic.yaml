@@ -145,7 +145,7 @@ objects:
         from:
           kind: ImageStreamTag
           namespace: "${IMAGE_STREAM_NAMESPACE}"
-          name: amq-interconnect-11-openshift:latest
+          name: amq-interconnect-12-openshift:latest
     - type: ConfigChange
     replicas: 1
     selector:
@@ -189,7 +189,7 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-            image: amq-interconnect-11-openshift:latest
+            image: amq-interconnect-12-openshift:latest
           volumeMounts:
           - name: certs
             readOnly: true
