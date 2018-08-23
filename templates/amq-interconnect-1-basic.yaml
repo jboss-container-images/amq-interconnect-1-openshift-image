@@ -145,7 +145,7 @@ objects:
         from:
           kind: ImageStreamTag
           namespace: "${IMAGE_STREAM_NAMESPACE}"
-          name: amq-interconnect-12-openshift:latest
+          name: amq-interconnect-1.2-openshift:latest
     - type: ConfigChange
     replicas: 1
     selector:
@@ -189,12 +189,18 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-            image: amq-interconnect-12-openshift:latest
+            image: amq-interconnect-1.2-openshift:latest
           volumeMounts:
           - name: certs
             readOnly: true
             mountPath: /etc/qpid-dispatch-certs/
           terminationGracePeriodSeconds: 60
+          readinessProbe:
+            tcpSocket:
+              port: 5672
+          livenessProbe:
+            tcpSocket:
+              port: 5672
         volumes:
         - name: certs
           secret:
