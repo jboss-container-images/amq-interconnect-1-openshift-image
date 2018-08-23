@@ -1,12 +1,12 @@
 schema_version: 1
 
-name: "amq-interconnect-1/amq-interconnect-12-openshift"
+name: "amq-interconnect/amq-interconnect-1.2-openshift"
 description: "Red Hat AMQ Interconnect OpenShift container image"
 version: "1.0"
 from: "jboss/base-rhel7:1.1"
 labels:
     - name: "com.redhat.component"
-      value: "amq-interconnect-12-openshift-container"
+      value: "amq-interconnect-1.2-openshift-container"
     - name: "io.k8s.description"
       value: "A lightweight AMQP message router for building scalable, available, and performant messaging networks."
     - name: "io.k8s.display-name"
@@ -39,6 +39,7 @@ packages:
       install:
           - qpid-dispatch-router
           - qpid-dispatch-tools
+          - qpid-dispatch-console
 run:
       user: 185
       cmd:
