@@ -10,7 +10,7 @@ labels:
     - name: "io.k8s.description"
       value: "A lightweight AMQP message router for building scalable, available, and performant messaging networks."
     - name: "io.k8s.display-name"
-      value: "AMQ Interconnect 1.1"
+      value: "AMQ Interconnect 1.2"
     - name: "io.openshift.tags"
       value: "messaging,amq"
     - name: "maintainer"
@@ -33,10 +33,16 @@ modules:
           - name: interconnect.launch
 packages:
       repositories:
+          - name: rhel-7
+            id: rhel-7-server-rpms
           - name: jboss-rhom
             url:
                 repository: http://download.eng.bos.redhat.com/rcm-guest/puddles/RHOM/1.0/latest/puddle.repo
       install:
+          - cyrus-sasl-gssapi
+          - cyrus-sasl-md5
+          - cyrus-sasl-plain
+          - cyrus-sasl-scram
           - qpid-dispatch-router
           - qpid-dispatch-tools
           - qpid-dispatch-console
