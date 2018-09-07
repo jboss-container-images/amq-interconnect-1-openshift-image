@@ -1,16 +1,20 @@
 kind: Template
 apiVersion: v1
 metadata:
-  name: amq-interconnect-1-basic
+  name: amq-interconnect-1-tls-auth
   annotations:
-    description: Application template for Red Hat AMQ Interconnect Router.
+    description: Application template for Red Hat Interconnect Router
+        with TLS authentication. This template requires a secret
+        holding a ca for verifying client certificates and a secret
+        holding the certs and key required for inter-router
+        authentication and encryption.
     iconClass: icon-amq
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq
     version: 1.4.10
-    openshift.io/display-name: Red Hat AMQ Interconnect Router 1.x
+    openshift.io/display-name: Red Hat AMQ Interconnect Router 1.x with TLS authentication
 labels:
-  template: amq-interconnect-1-basic
+  template: amq-interconnect-1-tls-auth
   xpaas: 1.4.10
 message: A new messaging service has been created in your project.
 parameters:
@@ -19,6 +23,14 @@ parameters:
   name: APPLICATION_NAME
   value: amq-interconnect
   required: true
+- displayName: Router internal certificates
+  description: Name of secret containing certificate with which to authenticate inter-router connections.
+  name: INTER_ROUTER_CERTS_SECRET
+  value: inter-router-certs
+- displayName: Client CA certificates
+  description: Name of secret containing CA certificate with which valid client certificates were signed.
+  name: CLIENT_CA_SECRET
+  value: client-ca
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
@@ -32,36 +44,48 @@ parameters:
   value: |-
     router {
         mode: interior
-        id: ${HOSTNAME}
+        id: Router.${HOSTNAME}
     }
 
+    # only allow anonymous connections over localhost
     listener {
-        host: 0.0.0.0
+        host: localhost
         port: amqp
         authenticatePeer: no
         saslMechanisms: ANONYMOUS
     }
 
     listener {
-      host: 0.0.0.0
-      port: 55672
-      role: inter-router
-      authenticatePeer: no
-      saslMechanisms: ANONYMOUS
-    }
-
-    sslProfile {
-       name: service_tls
-       certFile: /etc/qpid-dispatch-certs/tls.crt
-       privateKeyFile: /etc/qpid-dispatch-certs/tls.key
+        host: 0.0.0.0
+        port: amqps
+        sslProfile: service_tls
+        authenticatePeer: yes
+        requireSsl: true
+        saslMechanisms: EXTERNAL
     }
 
     listener {
         host: 0.0.0.0
-        port: amqps
-        authenticatePeer: no
-        saslMechanisms: ANONYMOUS
-        sslProfile: service_tls
+        port: 55672
+        role: inter-router
+        sslProfile: inter_router_tls
+        authenticatePeer: yes
+        requireSsl: true
+        saslMechanisms: EXTERNAL
+    }
+
+    sslProfile {
+        name: inter_router_tls
+        certFile: /etc/qpid-dispatch-certs/inter-router/tls.crt
+        privateKeyFile: /etc/qpid-dispatch-certs/inter-router/tls.key
+        caCertFile: /etc/qpid-dispatch-certs/inter-router/ca.crt
+    }
+
+    sslProfile {
+        name: service_tls
+        certFile: /etc/qpid-dispatch-certs/normal/tls.crt
+        keyFile: /etc/qpid-dispatch-certs/normal/tls.key
+        caCertFile: /etc/qpid-dispatch-certs/client-ca/ca.crt
     }
 
     listener {
@@ -147,7 +171,7 @@ objects:
           namespace: "${IMAGE_STREAM_NAMESPACE}"
           name: amq-interconnect-1.2-openshift:latest
     - type: ConfigChange
-    replicas: 1
+    replicas: 2
     selector:
       deploymentConfig: "${APPLICATION_NAME}"
     template:
@@ -169,7 +193,7 @@ objects:
             containerPort: 5671
             protocol: TCP
           - name: http
-            containerPort: 8080
+            containerPort: 8672
             protocol: TCP
           - name: inter
             containerPort: 55672
@@ -193,20 +217,32 @@ objects:
           volumeMounts:
           - name: certs
             readOnly: true
-            mountPath: /etc/qpid-dispatch-certs/
+            mountPath: /etc/qpid-dispatch-certs/normal/
+          - name: inter-router-certs
+            readOnly: true
+            mountPath: /etc/qpid-dispatch-certs/inter-router/
+          - name: client-ca
+            readOnly: true
+            mountPath: /etc/qpid-dispatch-certs/client-ca/
           - name: config-volume
             mountPath: /etc/qpid-dispatch/
           terminationGracePeriodSeconds: 60
           readinessProbe:
             tcpSocket:
-              port: 5672
+              port: 8672
           livenessProbe:
             tcpSocket:
-              port: 5672
+              port: 8672
         volumes:
         - name: certs
           secret:
             secretName: ${APPLICATION_NAME}-cert
+        - name: inter-router-certs
+          secret:
+            secretName: ${INTER_ROUTER_CERTS_SECRET}
+        - name: client-ca
+          secret:
+            secretName: ${CLIENT_CA_SECRET}
         - name: config-volume
           configMap:
             name: ${APPLICATION_NAME}
@@ -236,3 +272,17 @@ objects:
       application: ${APPLICATION_NAME}
   data:
     qdrouterd.conf: ${QDROUTERD_CONF}
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}
+    labels:
+      application: ${APPLICATION_NAME}
+  spec:
+    port:
+      targetPort: amqps
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: amq-interconnect

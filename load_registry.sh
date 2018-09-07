@@ -3,8 +3,8 @@
 OC_VERSION=$(oc version | grep openshift | grep -o "[0-9]\.[0-9]")
 NAMESPACE=$(oc project | cut -d '"' -f2 | cut -d '"' -f1)
 
-BASE_NAME=amq-interconnect-1
-IMAGE_NAME=amq-interconnect-12-openshift
+BASE_NAME=amq-interconnect
+IMAGE_NAME=amq-interconnect-1.2-openshift
 
 oc get svc -n default | grep registry 2>&1 > /dev/null
 ret=$?
