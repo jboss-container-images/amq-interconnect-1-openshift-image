@@ -1,7 +1,7 @@
 #!/bin/sh
 # Loads router image into OpenShift registry
 OC_VERSION=$(oc version | grep openshift | grep -o "[0-9]\.[0-9]")
-NAMESPACE=$(oc project | cut -d '"' -f2 | cut -d '"' -f1)
+NAMESPACE=$(oc project -q)
 
 BASE_NAME=amq-interconnect
 IMAGE_NAME=amq-interconnect-1.2-openshift

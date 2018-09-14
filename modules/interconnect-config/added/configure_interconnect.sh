@@ -35,3 +35,7 @@ swapVars $OUTFILE
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
     python $HOME_DIR/bin/auto_mesh.py $OUTFILE
 fi
+
+if [ -n "$QDROUTERD_AUTO_CREATE_SASLDB_SOURCE" ]; then
+    $HOME_DIR/bin/create_sasldb.sh ${QDROUTERD_AUTO_CREATE_SASLDB_PATH:-$HOME_DIR/etc/qdrouterd.sasldb} $QDROUTERD_AUTO_CREATE_SASLDB_SOURCE "${APPLICATION_NAME:-amq-interconnect}"
+fi
