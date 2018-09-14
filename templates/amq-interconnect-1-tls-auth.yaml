@@ -31,6 +31,13 @@ parameters:
   description: Name of secret containing CA certificate with which valid client certificates were signed.
   name: CLIENT_CA_SECRET
   value: client-ca
+- description: Username for access to console
+  name: USERNAME
+  value: admin
+- description: Password for access to console
+  from: '[A-Z0-9]{8}'
+  generate: expression
+  name: PASSWORD
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
@@ -88,12 +95,18 @@ parameters:
         caCertFile: /etc/qpid-dispatch-certs/client-ca/ca.crt
     }
 
+    sslProfile {
+        name: console_tls
+        certFile: /etc/qpid-dispatch-certs/normal/tls.crt
+        keyFile: /etc/qpid-dispatch-certs/normal/tls.key
+    }
+
     listener {
         host: 0.0.0.0
         port: 8672
-        authenticatePeer: no
-        saslMechanisms: ANONYMOUS
-        sslProfile: service_tls
+        authenticatePeer: yes
+        saslMechanisms: PLAIN SCRAM-SHA-1
+        sslProfile: console_tls
         http: true
         httpRootDir: /usr/share/qpid-dispatch/console
     }
@@ -205,6 +218,10 @@ objects:
             value: "/etc/qpid-dispatch/qdrouterd.conf"
           - name: QDROUTERD_AUTO_MESH_DISCOVERY
             value: "QUERY"
+          - name: QDROUTERD_AUTO_CREATE_SASLDB_SOURCE
+            value: "/etc/qpid-dispatch-users"
+          - name: QDROUTERD_AUTO_CREATE_SASLDB_PATH
+            value: "/opt/interconnect/etc/qdrouterd.sasldb"
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:
@@ -226,12 +243,18 @@ objects:
             mountPath: /etc/qpid-dispatch-certs/client-ca/
           - name: config-volume
             mountPath: /etc/qpid-dispatch/
+          - name: sasl-config
+            mountPath: /etc/sasl2/
+          - name: users
+            mountPath: /etc/qpid-dispatch-users
           terminationGracePeriodSeconds: 60
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 8672
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 8672
         volumes:
         - name: certs
@@ -243,6 +266,12 @@ objects:
         - name: client-ca
           secret:
             secretName: ${CLIENT_CA_SECRET}
+        - name: sasl-config
+          configMap:
+            name: ${APPLICATION_NAME}-sasl-config
+        - name: users
+          secret:
+            secretName: ${APPLICATION_NAME}-users
         - name: config-volume
           configMap:
             name: ${APPLICATION_NAME}
@@ -272,6 +301,14 @@ objects:
       application: ${APPLICATION_NAME}
   data:
     qdrouterd.conf: ${QDROUTERD_CONF}
+- kind: Secret
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-users
+    labels:
+      application: ${APPLICATION_NAME}
+  stringData:
+    ${USERNAME}: ${PASSWORD}
 - kind: Route
   apiVersion: v1
   metadata:
@@ -285,4 +322,30 @@ objects:
       termination: passthrough
     to:
       kind: Service
-      name: amq-interconnect
+      name: ${APPLICATION_NAME}
+- kind: Route
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-console
+    labels:
+      application: ${APPLICATION_NAME}
+  spec:
+    port:
+      targetPort: http
+    tls:
+      termination: passthrough
+    to:
+      kind: Service
+      name: ${APPLICATION_NAME}
+- kind: ConfigMap
+  apiVersion: v1
+  metadata:
+    name: ${APPLICATION_NAME}-sasl-config
+    labels:
+      application: ${APPLICATION_NAME}
+  data:
+    qdrouterd.conf: |-
+      pwcheck_method: auxprop
+      auxprop_plugin: sasldb
+      sasldb_path: /opt/interconnect/etc/qdrouterd.sasldb
+      mech_list: SCRAM-SHA-1 DIGEST-MD5 PLAIN EXTERNAL
