@@ -27,10 +27,10 @@ parameters:
   description: Name of secret containing certificate with which to authenticate inter-router connections.
   name: INTER_ROUTER_CERTS_SECRET
   value: inter-router-certs
-- displayName: Secret for user database
-  description: Secret holding SASL database of users and passwords
-  name: SASLDB_SECRET
-  value: sasldb
+- displayName: Secret for user data
+  description: Secret holding list of user/password key-value pairs
+  name: USERS_SECRET
+  value: users
 - displayName: ImageStream Namespace
   description: Namespace in which the ImageStreams for Red Hat Middleware images are
     installed. These ImageStreams are normally installed in the openshift namespace.
@@ -201,6 +201,10 @@ objects:
             value: "/etc/qpid-dispatch/qdrouterd.conf"
           - name: QDROUTERD_AUTO_MESH_DISCOVERY
             value: "QUERY"
+          - name: QDROUTERD_AUTO_CREATE_SASLDB_SOURCE
+            value: "/etc/qpid-dispatch-users"
+          - name: QDROUTERD_AUTO_CREATE_SASLDB_PATH
+            value: "/opt/interconnect/etc/qdrouterd.sasldb"
           - name: POD_NAMESPACE
             valueFrom:
               fieldRef:
@@ -221,14 +225,16 @@ objects:
             mountPath: /etc/qpid-dispatch/
           - name: sasl-config
             mountPath: /etc/sasl2/
-          - name: sasldb
-            mountPath: /var/lib/qdrouterd/
+          - name: users
+            mountPath: /etc/qpid-dispatch-users
           terminationGracePeriodSeconds: 60
           readinessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 8672
           livenessProbe:
-            tcpSocket:
+            httpGet:
+              path: /
               port: 8672
         volumes:
         - name: certs
@@ -243,9 +249,9 @@ objects:
         - name: sasl-config
           configMap:
             name: ${APPLICATION_NAME}-sasl-config
-        - name: sasldb
+        - name: users
           secret:
-            secretName: ${SASLDB_SECRET}
+            secretName: ${USERS_SECRET}
         imagePullPolicy: Always
 - kind: ServiceAccount
   apiVersion: v1
@@ -282,5 +288,5 @@ objects:
     qdrouterd.conf: |-
       pwcheck_method: auxprop
       auxprop_plugin: sasldb
-      sasldb_path: /var/lib/qdrouterd/qdrouterd.sasldb
+      sasldb_path: /opt/interconnect/etc/qdrouterd.sasldb
       mech_list: SCRAM-SHA-1 DIGEST-MD5 PLAIN EXTERNAL
