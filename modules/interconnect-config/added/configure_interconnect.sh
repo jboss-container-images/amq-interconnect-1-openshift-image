@@ -7,6 +7,10 @@ function swapVars() {
   sed -i "s/\${HOSTNAME}/$HOSTNAME/g" $1
 }
 
+function printConfig() {
+    echo "---------------------------------------" && cat $OUTFILE && echo "---------------------------------------"
+}
+
 if [[ $QDROUTERD_CONF =~ .*\{.*\}.* ]]; then
     # env var contains inline config
     echo "$QDROUTERD_CONF" > $OUTFILE
@@ -33,7 +37,7 @@ fi
 swapVars $OUTFILE
 
 if [ -n "$QDROUTERD_AUTO_MESH_DISCOVERY" ]; then
-    python $HOME_DIR/bin/auto_mesh.py $OUTFILE
+    python $HOME_DIR/bin/auto_mesh.py $OUTFILE || printConfig
 fi
 
 if [ -n "$QDROUTERD_AUTO_CREATE_SASLDB_SOURCE" ]; then

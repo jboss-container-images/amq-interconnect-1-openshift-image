@@ -9,6 +9,7 @@ import re
 import ssl
 import sys
 import time
+import traceback
 
 TOKEN_FILE  = "/var/run/secrets/kubernetes.io/serviceaccount/token"
 NAMESPACE_FILE  = "/var/run/secrets/kubernetes.io/serviceaccount/namespace"
@@ -100,7 +101,7 @@ class SimpleParser:
 
     def next(self):
         line = self.current()
-        while line and (line.startswith("#") or len(line) == 0 or line.isspace()):
+        while line and (line.strip().startswith("#") or len(line) == 0 or line.isspace()):
             self.position += 1
             line = self.current()
         return line
@@ -128,6 +129,8 @@ class SimpleParser:
 
     def parse_properties(self):
         line = self.next()
+        if not line:
+            raise Exception("Could not parse properties: %s" % self.lines[-1])
         properties = {}
         while not line.strip() == "}":
             (name, value) = line.split(":", 1)
@@ -135,8 +138,10 @@ class SimpleParser:
                 properties[name.strip()] = value.strip()
                 self.position += 1
                 line = self.next()
+                if not line:
+                    raise Exception("Could not find end of properties: %s" % self.lines[-1])
             else:
-                raise Exception("Coule not parse property (line %s)" % self.position+1)
+                raise Exception("Could not parse property (line %i): %s" % (self.position+1, line))
         self.position += 1
         return properties
 
@@ -231,10 +236,14 @@ def infer():
 if __name__ == "__main__":
     mode = os.environ.get("QDROUTERD_AUTO_MESH_DISCOVERY")
     if mode and len(sys.argv) > 1:
-        if mode.upper() == "QUERY":
-            connectors = query()
-        elif mode.upper() == "INFER":
-            connectors = infer()
-        else:
-            raise Exception("Invalid value for QDROUTERD_AUTO_MESH_DISCOVERY, expected 'QUERY' or 'INFER'")
-        get_config(sys.argv[1]).append_connectors(connectors)
+        try:
+            if mode.upper() == "QUERY":
+                connectors = query()
+            elif mode.upper() == "INFER":
+                connectors = infer()
+            else:
+                raise Exception("Invalid value for QDROUTERD_AUTO_MESH_DISCOVERY, expected 'QUERY' or 'INFER'")
+            get_config(sys.argv[1]).append_connectors(connectors)
+        except Exception as e:
+            traceback.print_exc()
+            sys.exit("Error configuring automesh: %s" % e)
