@@ -21,15 +21,15 @@ parameters:
   name: APPLICATION_NAME
   value: amq-interconnect
   required: true
-- displayName: Router internal certificates
+- displayName: Router Internal Certificates
   description: The name of the secret that contains the certificate with which to authenticate inter-router connections.
   name: INTER_ROUTER_CERTS_SECRET
   value: inter-router-certs
-- displayName: Secret for user data
+- displayName: Secret for User Data
   description: The name of the secret that contains the list of user name/password pairs.
   name: USERS_SECRET
   value: users
-- displayName: ImageStream Namespace
+- displayName: Image Stream Namespace
   description: The namespace in which the image streams for Red Hat Middleware images are
     installed. These image streams are normally installed in the openshift namespace.
     You should only need to modify this if you installed the image streams in a
