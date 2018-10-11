@@ -15,19 +15,19 @@ labels:
 message: A new messaging service has been created in your project.
 parameters:
 - displayName: Application Name
-  description: The name for the application.
+  description: The name of the application.
   name: APPLICATION_NAME
   value: amq-interconnect
   required: true
-- displayName: ImageStream Namespace
-  description: Namespace in which the ImageStreams for Red Hat Middleware images are
-    installed. These ImageStreams are normally installed in the openshift namespace.
-    You should only need to modify this if you've installed the ImageStreams in a
+- displayName: Image Stream Namespace
+  description: The namespace in which the image streams for Red Hat Middleware images are
+    installed. These image streams are normally installed in the openshift namespace.
+    You should only need to modify this if you installed the image streams in a
     different namespace/project.
   name: IMAGE_STREAM_NAMESPACE
   value: openshift
 - displayName: qdrouterd.conf
-  description: The router configuration file
+  description: The router configuration file.
   name: QDROUTERD_CONF
   value: |-
     router {

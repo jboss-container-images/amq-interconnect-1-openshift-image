@@ -3,10 +3,10 @@ apiVersion: v1
 metadata:
   name: amq-interconnect-1-tls-auth
   annotations:
-    description: Application template for Red Hat Interconnect Router
+    description: Application template for Red Hat AMQ Interconnect Router
         with TLS authentication. This template requires a secret
-        holding a ca for verifying client certificates and a secret
-        holding the certs and key required for inter-router
+        containing a CA for verifying client certificates, and a secret
+        containing the certificates and key required for inter-router
         authentication and encryption.
     iconClass: icon-amq
     openshift.io/provider-display-name: Red Hat, Inc.
@@ -19,34 +19,34 @@ labels:
 message: A new messaging service has been created in your project.
 parameters:
 - displayName: Application Name
-  description: The name for the application.
+  description: The name of the application.
   name: APPLICATION_NAME
   value: amq-interconnect
   required: true
 - displayName: Router internal certificates
-  description: Name of secret containing certificate with which to authenticate inter-router connections.
+  description: The name of the secret that contains the certificate with which to authenticate inter-router connections.
   name: INTER_ROUTER_CERTS_SECRET
   value: inter-router-certs
 - displayName: Client CA certificates
-  description: Name of secret containing CA certificate with which valid client certificates were signed.
+  description: The name of the secret that contains the CA certificate with which valid client certificates were signed.
   name: CLIENT_CA_SECRET
   value: client-ca
-- description: Username for access to console
+- description: Create a user name for accessing the router's web console.
   name: USERNAME
   value: admin
-- description: Password for access to console
+- description: Create a password for accessing the router's web console.
   from: '[A-Z0-9]{8}'
   generate: expression
   name: PASSWORD
 - displayName: ImageStream Namespace
-  description: Namespace in which the ImageStreams for Red Hat Middleware images are
-    installed. These ImageStreams are normally installed in the openshift namespace.
-    You should only need to modify this if you've installed the ImageStreams in a
+  description: The namespace in which the image streams for Red Hat Middleware images are
+    installed. These image streams are normally installed in the openshift namespace.
+    You should only need to modify this if you installed the image streams in a
     different namespace/project.
   name: IMAGE_STREAM_NAMESPACE
   value: openshift
 - displayName: qdrouterd.conf
-  description: The router configuration file
+  description: The router configuration file.
   name: QDROUTERD_CONF
   value: |-
     router {
