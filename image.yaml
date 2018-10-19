@@ -14,7 +14,7 @@ labels:
     - name: "io.openshift.tags"
       value: "messaging,amq"
     - name: "maintainer"
-      value: "gsim@redhat.com"
+      value: "Gordon Sim <gsim@redhat.com>"
     - name: "io.openshift.expose-services"
       value: "5672:amqp,5671:amqps,8672:http"
 envs:
@@ -35,9 +35,10 @@ packages:
       repositories:
           - name: rhel-7
             id: rhel-7-server-rpms
-          - name: jboss-rhom
-            url:
-                repository: http://download.eng.bos.redhat.com/rcm-guest/puddles/RHOM/1.0/latest/puddle.repo
+          - name: amq-interconnect
+            id: amq-interconnect-1-for-rhel-7-server-rpms
+          - name: amq-clients
+            id: amq-clients-2-for-rhel-7-server-rpms
       install:
           - cyrus-sasl-gssapi
           - cyrus-sasl-md5
