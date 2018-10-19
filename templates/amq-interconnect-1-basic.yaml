@@ -198,11 +198,13 @@ objects:
             mountPath: /etc/qpid-dispatch/
           terminationGracePeriodSeconds: 60
           readinessProbe:
-            tcpSocket:
-              port: 5672
+            httpGet:
+              path: /
+              port: 8672
           livenessProbe:
-            tcpSocket:
-              port: 5672
+            httpGet:
+              path: /
+              port: 8672
         volumes:
         - name: certs
           secret:
