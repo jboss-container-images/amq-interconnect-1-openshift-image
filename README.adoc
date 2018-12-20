@@ -1,15 +1,11 @@
 # Red Hat AMQ Interconnect OpenShift image
 
-NOTE: Extends link:https://github.com/jboss-container-images/jboss-base-image[JBoss base image]
-
 Provides AMQ Interconnect tools and OpenShift Integration
 
 . qdmanage
 . qdrouterd
-. qdstat 
+. qdstat
 
-
-See HACKING.adoc for details on developing Interconnect Images
 
 # License
 
