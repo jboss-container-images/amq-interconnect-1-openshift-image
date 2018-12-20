@@ -11,11 +11,9 @@ metadata:
     iconClass: icon-amq
     openshift.io/provider-display-name: Red Hat, Inc.
     tags: messaging,amq
-    version: 1.4.10
     openshift.io/display-name: Red Hat AMQ Interconnect Router 1.x with TLS authentication
 labels:
   template: amq-interconnect-1-tls-auth
-  xpaas: 1.4.10
 message: A new messaging service has been created in your project.
 parameters:
 - displayName: Application Name
@@ -45,6 +43,11 @@ parameters:
     different namespace/project.
   name: IMAGE_STREAM_NAMESPACE
   value: openshift
+- displayName: Image Name
+  description: The name of the AMQ Interconnect image to use. This can usually be left as
+               the default value
+  name: IMAGE_NAME
+  value: amq-interconnect:latest
 - displayName: qdrouterd.conf
   description: The router configuration file.
   name: QDROUTERD_CONF
@@ -182,7 +185,7 @@ objects:
         from:
           kind: ImageStreamTag
           namespace: "${IMAGE_STREAM_NAMESPACE}"
-          name: amq-interconnect-1.2-openshift:latest
+          name: ${IMAGE_NAME}
     - type: ConfigChange
     replicas: 2
     selector:
@@ -230,7 +233,7 @@ objects:
             valueFrom:
               fieldRef:
                 fieldPath: status.podIP
-            image: amq-interconnect-1.2-openshift:latest
+            image: ${IMAGE_NAME}
           volumeMounts:
           - name: certs
             readOnly: true
